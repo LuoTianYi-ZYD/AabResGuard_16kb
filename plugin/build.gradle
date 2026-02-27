@@ -11,11 +11,16 @@ dependencies {
 
     implementation deps.kotlin.stdlib
     implementation deps.kotlin.plugin
-    compileOnly deps.aabresguard.core
-    api(deps.aabresguard.core) {
-        exclude group: "com.google.guava", module: "guava"
-        exclude group: "com.android.tools.build", module: "gradle"
-    }
+
+    // 使用项目内依赖替代外部依赖
+    implementation project(':core')
+
+    // 如果需要保持原有的依赖声明用于发布，可以注释掉下面这些行
+    // compileOnly deps.aabresguard.core
+    // api(deps.aabresguard.core) {
+    //     exclude group: "com.google.guava", module: "guava"
+    //     exclude group: "com.android.tools.build", module: "gradle"
+    // }
 }
 
 configurations {

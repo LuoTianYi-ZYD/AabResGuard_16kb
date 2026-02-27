@@ -20,13 +20,14 @@ buildscript {
     }
     dependencies {
         classpath deps.plugin.shadow
-        classpath deps.plugin['bintray-plugin']
+//        classpath deps.plugin['bintray-plugin']
         classpath deps.gradle.agp
         classpath deps.kotlin.plugin
 
-        if ("true".equalsIgnoreCase(System.getProperty("enableAabResGuardPlugin", "false"))) {
-            classpath deps.aabresguard.plugin
-        }
+        // 移除这三行，因为我们现在使用项目内依赖
+        // if ("true".equalsIgnoreCase(System.getProperty("enableAabResGuardPlugin", "false"))) {
+        //     classpath deps.aabresguard.plugin
+        //
     }
 }
 
