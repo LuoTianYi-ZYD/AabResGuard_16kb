@@ -14,6 +14,7 @@
 
 > 来自字节跳动团队的工具已经很久没有更新，xeemoo从2024年开始基于[martinloren](https://github.com/martinloren/AabResGuard/)的工作继续维护。
 > 现在支持`AGP 7.0`及以上，在 `BundleTool 1.15.2`上验证可用。
+> >再此基础上 更新 BundleTool 至 1.8.1 ,解决打包后 16kb对齐的问题
 
 ## 特性
 > 针对 aab 文件的资源混淆工具
@@ -39,11 +40,12 @@
 buildscript {
   repositories {
     mavenCentral()
+    mavenLocal()
     google()
-    maven { url 'https://raw.githubusercontent.com/xeemoo/AabResGuard/mvn-repo' }
-   }
+	   maven { url 'https://jitpack.io' }
+  }
   dependencies {
-    classpath "com.bytedance.android:aabresguard-plugin:0.1.12"
+    classpath "com.github.LuoTianYi-ZYD:AabResGuard_16kb:0.1.20"
   }
 }
 ```

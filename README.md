@@ -13,6 +13,7 @@
 
 > The tools from the bytedance team have not been updated for a long time. xeemoo has been based on [martinloren](https://github.com/martinloren/AabResGuard) since 2024 continue to maintain the work.
 > Now supports AGP 7.0 and above, and can be verified and used on BundleTool 1.15.2.
+> >Based on this, update BundleTool to version 1.8.1 to resolve the 16KB alignment issue after packaging.
 
 ## Features
 > The tool of obfuscated aab resources.
@@ -41,10 +42,10 @@ buildscript {
     mavenCentral()
     mavenLocal()
     google()
-    maven { url 'https://raw.githubusercontent.com/xeemoo/AabResGuard/mvn-repo' }
+	   maven { url 'https://jitpack.io' }
   }
   dependencies {
-    classpath "com.bytedance.android:aabresguard-plugin:0.1.12"
+    classpath "com.github.LuoTianYi-ZYD:AabResGuard_16kb:0.1.20"
   }
 }
 ```
