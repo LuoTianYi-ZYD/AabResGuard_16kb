@@ -1,34 +1,34 @@
 package com.bytedance.android.plugin.tasks
 
-import com.android.build.gradle.api.ApplicationVariant
 import com.bytedance.android.aabresguard.commands.ObfuscateBundleCommand
 import com.bytedance.android.plugin.extensions.AabResGuardExtension
-import com.bytedance.android.plugin.internal.getBundleFilePath
-import com.bytedance.android.plugin.internal.getSigningConfig
 import com.bytedance.android.plugin.model.SigningConfig
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFile
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
-import org.gradle.internal.logging.text.StyledTextOutput.Style
-import org.gradle.internal.logging.text.StyledTextOutputFactory
 import java.io.File
 import java.nio.file.Path
-import javax.inject.Inject
 
 /**
  * Created by YangJing on 2019/10/15 .
  * Email: yangjing.yeoh@bytedance.com
  * Modified 2021/08/11
  */
-open class AabResGuardTask @Inject constructor(outputFactory: StyledTextOutputFactory) : DefaultTask() {
+open class AabResGuardTask : DefaultTask() {
 
     @get:Internal
-    private lateinit var variant: ApplicationVariant
+    private lateinit var variantName: String
 
     @get:Internal
     lateinit var signingConfig: SigningConfig
 
     @get:Internal
     var aabResGuard: AabResGuardExtension = project.extensions.getByName("aabResGuard") as AabResGuardExtension
+
+    @get:InputFile
+    val bundleFile: RegularFileProperty = project.objects.fileProperty()
 
     @get:Internal
     private lateinit var bundlePath: Path
@@ -42,11 +42,10 @@ open class AabResGuardTask @Inject constructor(outputFactory: StyledTextOutputFa
         outputs.upToDateWhen { false }
     }
 
-    fun setVariantScope(variant:ApplicationVariant) {
-        this.variant=variant;
-        // init bundleFile, obfuscatedBundlePath must init before task action.
-        bundlePath = getBundleFilePath(project, variant)
-        obfuscatedBundlePath = File(bundlePath.toFile().parentFile, aabResGuard.obfuscatedBundleFileName).toPath()
+    fun setVariantScope(variantName: String, bundleProvider: Provider<RegularFile>, signingConfig: SigningConfig) {
+        this.variantName = variantName
+        this.bundleFile.set(bundleProvider)
+        this.signingConfig = signingConfig
     }
 /*
     @InputFile
@@ -55,13 +54,12 @@ open class AabResGuardTask @Inject constructor(outputFactory: StyledTextOutputFa
         return obfuscatedBundlePath
     }
 */
-    private val out = outputFactory.create("AabResGuardTask")
 
     @TaskAction
-    private fun execute() {
-        out.style(Style.Info).println(aabResGuard.toString())
-        // init signing config
-        signingConfig = getSigningConfig(project, variant)
+    fun runAabResGuard() {
+        println(aabResGuard.toString())
+        bundlePath = bundleFile.get().asFile.toPath()
+        obfuscatedBundlePath = File(bundlePath.toFile().parentFile, aabResGuard.obfuscatedBundleFileName).toPath()
         printSignConfiguration()
         printOutputFileLocation()
 
@@ -92,20 +90,18 @@ open class AabResGuardTask @Inject constructor(outputFactory: StyledTextOutputFa
     }
 
     private fun prepareUnusedFile() {
-        val simpleName = variant.name.replace("Release", "")
-        val name = simpleName[0].lowercaseChar() + simpleName.substring(1)
-        val resourcePath = "${project.buildDir}/outputs/mapping/$name/release/unused.txt"
-        val usedFile = File(resourcePath)
+        val resourcePath = project.layout.buildDirectory.file("outputs/mapping/$variantName/unused.txt").get().asFile
+        val usedFile = resourcePath
         if (usedFile.exists()) {
             println("find unused.txt : ${usedFile.absolutePath}")
             if (aabResGuard.enableFilterStrings) {
                 if (aabResGuard.unusedStringPath == null || aabResGuard.unusedStringPath!!.isBlank()) {
                     aabResGuard.unusedStringPath = usedFile.absolutePath
-                    out.style(Style.Error).println("replace unused.txt!")
+                    logger.warn("replace unused.txt!")
                 }
             }
         } else {
-            out.style(Style.Error).println("not exists unused.txt : ${usedFile.absolutePath}\n" +
+            logger.warn("not exists unused.txt : ${usedFile.absolutePath}\n" +
                     "use default path : ${aabResGuard.unusedStringPath}")
         }
     }

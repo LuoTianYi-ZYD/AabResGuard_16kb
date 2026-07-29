@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply from: "$rootDir/gradle/aabresguard.gradle"
-apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     namespace "com.bytedance.android.app"
@@ -52,9 +51,6 @@ android {
         }
     }
     dynamicFeatures = [":df_module1", ":df_module2"]
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
 }
 
 dependencies {

@@ -1,38 +1,26 @@
 package com.bytedance.android.plugin.internal
 
-import com.android.build.gradle.api.ApplicationVariant
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.ApkSigningConfig
+import com.android.build.api.variant.ApplicationVariant
 import com.bytedance.android.plugin.model.SigningConfig
-import org.gradle.api.Project
 
 /**
  * Created by YangJing on 2020/01/06 .
  * Email: yangjing.yeoh@bytedance.com
  */
-internal fun getSigningConfig(project: Project, variant: ApplicationVariant): SigningConfig {
-    val agpVersion = getAGPVersion(project)
-    // get signing config
-    return when {
-        // AGP3.2+: use VariantScope.getVariantConfiguration.getSigningConfig
-        agpVersion.startsWith("3.") -> {
-            getSigningConfigForAGP3(project, variant)
-        }
-        // AGP4.0+: VariantScope class removed getVariantConfiguration method.
-        // VariantManager add getBuildTypes method
-        // Use BuildType.getSigningConfig method to get signingConfig
-        else -> {
-            getSigningConfigForAGP4(agpVersion, project, variant)
-        }
-    }
+internal fun getSigningConfig(android: ApplicationExtension, variant: ApplicationVariant): SigningConfig {
+    val buildType = variant.buildType ?: return SigningConfig(null, null, null, null)
+    val buildTypeSigningConfig = android.buildTypes.findByName(buildType)?.signingConfig
+    val signingConfig = buildTypeSigningConfig ?: android.signingConfigs.findByName(buildType)
+    return getSigningConfig(signingConfig)
 }
 
-private fun getSigningConfigForAGP3(project: Project, variant: ApplicationVariant): SigningConfig {
-    return getSigningConfigByAppVariant(variant)
-}
-
-private fun getSigningConfigForAGP4(agpVersion: String, project: Project, variant: ApplicationVariant): SigningConfig {
-    return getSigningConfigByAppVariant(variant)
-}
-
-private fun getSigningConfigByAppVariant(variant: ApplicationVariant): SigningConfig {
-    return SigningConfig(variant.signingConfig.storeFile, variant.signingConfig.storePassword, variant.signingConfig.keyAlias, variant.signingConfig.keyPassword)
+private fun getSigningConfig(signingConfig: ApkSigningConfig?): SigningConfig {
+    return SigningConfig(
+            signingConfig?.storeFile,
+            signingConfig?.storePassword,
+            signingConfig?.keyAlias,
+            signingConfig?.keyPassword
+    )
 }

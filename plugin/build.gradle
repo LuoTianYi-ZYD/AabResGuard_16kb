@@ -27,5 +27,11 @@ configurations {
     all*.exclude group: "com.android.tools.build", module: "bundletool"
 }
 
-sourceCompatibility = versions.java
-targetCompatibility = versions.java
+java {
+    sourceCompatibility = JavaVersion.toVersion(versions.java)
+    targetCompatibility = JavaVersion.toVersion(versions.java)
+}
+
+kotlin {
+    jvmToolchain(Integer.parseInt(versions.java))
+}

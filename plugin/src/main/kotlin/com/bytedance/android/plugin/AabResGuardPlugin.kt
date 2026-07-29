@@ -1,13 +1,16 @@
 package com.bytedance.android.plugin
 
-import com.android.build.gradle.AppExtension
-import com.android.build.gradle.api.ApplicationVariant
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.ApplicationVariant
+import com.android.build.api.variant.ApplicationVariantBuilder
 import com.bytedance.android.plugin.extensions.AabResGuardExtension
+import com.bytedance.android.plugin.internal.getSigningConfig
 import com.bytedance.android.plugin.tasks.AabResGuardTask
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 
 /**
  * Created by YangJing on 2019/10/15 .
@@ -19,37 +22,29 @@ class AabResGuardPlugin : Plugin<Project> {
         checkApplicationPlugin(project)
         project.extensions.create("aabResGuard", AabResGuardExtension::class.java)
 
-        val android = project.extensions.getByName("android") as AppExtension
-        project.afterEvaluate {
-            android.applicationVariants.all { variant ->
-                createAabResGuardTask(project, variant)
-            }
+        val android = project.extensions.getByType(ApplicationExtension::class.java)
+        @Suppress("UNCHECKED_CAST")
+        val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
+                as AndroidComponentsExtension<ApplicationExtension, ApplicationVariantBuilder, ApplicationVariant>
+
+        androidComponents.onVariants { variant ->
+            createAabResGuardTask(project, android, variant)
         }
     }
 
-    private fun createAabResGuardTask(project: Project, variant: ApplicationVariant) {
-        val variantName = variant.name.capitalize()
-        val bundleTaskName = "bundle$variantName"
-        if (project.tasks.findByName(bundleTaskName) == null) {
-            return
-        }
+    private fun createAabResGuardTask(project: Project, android: ApplicationExtension, variant: ApplicationVariant) {
+        val variantName = variant.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
         val aabResGuardTaskName = "aabresguard$variantName"
-        val aabResGuardTask: AabResGuardTask = if (project.tasks.findByName(aabResGuardTaskName) == null) {
-            project.tasks.create(aabResGuardTaskName, AabResGuardTask::class.java)
-        } else {
-            project.tasks.getByName(aabResGuardTaskName) as AabResGuardTask
+        val aabResGuardTask = project.tasks.register(aabResGuardTaskName, AabResGuardTask::class.java) { task ->
+            task.setVariantScope(
+                    variant.name,
+                    variant.artifacts.get(SingleArtifact.BUNDLE),
+                    getSigningConfig(android, variant)
+            )
         }
-        aabResGuardTask.setVariantScope(variant)
 
-        val bundleTask: Task = project.tasks.getByName(bundleTaskName)
-        val bundlePackageTask: Task = project.tasks.getByName("package${variantName}Bundle")
-        bundleTask.dependsOn(aabResGuardTask)
-        aabResGuardTask.dependsOn(bundlePackageTask)
-        // AGP-4.0.0-alpha07: use FinalizeBundleTask to sign bundle file
-        // FinalizeBundleTask is executed after PackageBundleTask
-        val finalizeBundleTaskName = "sign${variantName}Bundle"
-        if (project.tasks.findByName(finalizeBundleTaskName) != null) {
-            aabResGuardTask.dependsOn(project.tasks.getByName(finalizeBundleTaskName))
+        project.tasks.matching { it.name == "bundle$variantName" }.configureEach {
+            it.finalizedBy(aabResGuardTask)
         }
     }
 
