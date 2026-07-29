@@ -61,6 +61,12 @@ protobuf {
     }
 }
 
+shadowJar {
+    archiveBaseName = ARTIFACT_ID
+    archiveVersion = project.version.toString()
+    archiveClassifier = ''
+}
+
 /** FIXME minimize会移除jar中全部的类
 shadowJar {
     archiveBaseName = "AabResGuard"
