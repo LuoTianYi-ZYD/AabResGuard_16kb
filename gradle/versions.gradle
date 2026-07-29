@@ -2,7 +2,7 @@ def versions = [:]
 versions.agp = "9.0.0"
 versions.kotlin = "2.1.21"
 versions.java = "17"
-versions.aabresguard = "0.1.20"
+versions.aabresguard = "0.1.21"
 // android
 versions.compileSdkVersion = 33
 versions.minSdkVersion = 15
