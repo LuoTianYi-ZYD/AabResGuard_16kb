@@ -50,14 +50,15 @@ def pomConfig = {
 publishing {
     publications {
         MyPublication(MavenPublication) { publication ->
-            project.shadow.component(publication)
+            artifact tasks.named('shadowJar')
             groupId GROUP_ID
             artifactId ARTIFACT_ID
-            version versions[ARTIFACT_ID]
+            version project.version.toString()
 
             artifact sourcesJar
             artifact javadocJar
 
+            pom.packaging = 'jar'
             pom.withXml {
                 def root = asNode()
                 root.appendNode('description', bintrayInfo.repo.description)

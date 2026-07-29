@@ -4,7 +4,12 @@ loadSystemProperties(rootProject.file("local.properties"))
 apply from: 'gradle/ext.gradle'
 apply from: 'gradle/versions.gradle'
 
+def publishedVersion = findProperty("version") ?: System.getenv("VERSION") ?: versions.aabresguard
+
 allprojects {
+    group = GROUP_ID
+    version = publishedVersion
+
     tasks.withType(Javadoc) {
         options.addStringOption('Xdoclint:none', '-quiet')
         options.addStringOption('encoding', 'UTF-8')

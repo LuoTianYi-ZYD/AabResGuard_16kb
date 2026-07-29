@@ -1,5 +1,5 @@
 ext {
-    GROUP_ID = "com.bytedance.android"
+    GROUP_ID = "com.github.LuoTianYi-ZYD.AabResGuard_16kb"
     bintrayInfo = [
             repo     : [
                     name       : "AabResGuard",

@@ -55,9 +55,9 @@ publishing {
                 artifact sourcesJar
                 artifact javadocJar
 
-                groupId project.findProperty("group") ?: GROUP_ID
+                groupId GROUP_ID
                 artifactId ARTIFACT_ID
-                version project.findProperty("version") ?: versions[ARTIFACT_ID]
+                version project.version.toString()
             }
         }
     } else {

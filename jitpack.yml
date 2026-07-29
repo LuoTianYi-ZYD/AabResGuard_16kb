@@ -2,4 +2,4 @@ jdk:
   - openjdk17
 
 install:
-  - ./gradlew :plugin:publishToMavenLocal -Pgroup=com.github.LuoTianYi-ZYD.AabResGuard_16kb -Pversion=$VERSION
+  - ./gradlew :core:publishToMavenLocal :plugin:publishToMavenLocal -Pgroup=com.github.LuoTianYi-ZYD.AabResGuard_16kb -Pversion=$VERSION

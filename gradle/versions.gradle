@@ -2,7 +2,7 @@ def versions = [:]
 versions.agp = "9.0.0"
 versions.kotlin = "2.1.21"
 versions.java = "17"
-versions.aabresguard = "0.1.22"
+versions.aabresguard = "0.1.23"
 // android
 versions.compileSdkVersion = 33
 versions.minSdkVersion = 15
@@ -16,7 +16,7 @@ versions["aabresguard-plugin"] = versions.aabresguard
 
 // plugin
 versions["bintray-plugin"] = "1.8.4"
-versions.shadow = "8.1.1"
+versions.shadow = "9.4.3"
 
 ext.versions = versions
 
@@ -35,7 +35,7 @@ kotlin.embeddable = "org.jetbrains.kotlin:kotlin-compiler-embeddable:$versions.k
 deps.kotlin = kotlin
 // plugin
 def plugin = [:]
-plugin.shadow = "com.github.johnrengelman:shadow:${versions.shadow}"
+plugin.shadow = "com.gradleup.shadow:shadow-gradle-plugin:${versions.shadow}"
 plugin['bintray-plugin'] = "com.jfrog.bintray.gradle:gradle-bintray-plugin:${versions["bintray-plugin"]}"
 deps.plugin = plugin
 // library
